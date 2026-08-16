@@ -12,6 +12,8 @@ const LandingPage = lazy(() => import("./pages/LandingPage"))
 const Dashboard = lazy(() => import("./pages/hr/Dashboard"))
 const Employees = lazy(() => import("./pages/hr/Employees"))
 const Attendance = lazy(() => import("./pages/hr/Attendance"))
+const KioskMode = lazy(() => import("./pages/hr/KioskMode"))
+const MobileCheckIn = lazy(() => import("./pages/employee/MobileCheckIn"))
 const Payroll = lazy(() => import("./pages/hr/Payroll"))
 const Reports = lazy(() => import("./pages/hr/Reports"))
 const SuperAdminDashboard = lazy(() => import("./pages/SuperAdminDashboard"))
@@ -56,6 +58,24 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Attendance />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/kiosk"
+            element={
+              <ProtectedRoute>
+                <KioskMode />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/mobile-checkin"
+            element={
+              <ProtectedRoute>
+                <MobileCheckIn />
               </ProtectedRoute>
             }
           />

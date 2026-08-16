@@ -11,3 +11,9 @@ export const updateAttendance = (id, data) =>
 
 export const deleteAttendance = (id) =>
   api.delete(`/attendance/${id}`)
+
+export const getShiftSettings = () =>
+  api.get("/attendance/shift-settings")
+
+export const updateShiftSettings = (data) =>
+  api.put("/attendance/shift-settings", data)

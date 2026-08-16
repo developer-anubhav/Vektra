@@ -40,7 +40,34 @@ const employeeSchema = new mongoose.Schema({
     type: String,
     enum: ["Active", "Inactive"],
     default: "Active",
-  }
+  },
+
+  // --- Face Profile Mirror ---
+  // The actual embeddings live in the Python face-service (face-service/data/embeddings.json).
+  // This sub-document mirrors the enrollment STATUS so the HR dashboard can
+  // display it without calling the face-service on every employee list request.
+  faceProfile: {
+    enrolled: {
+      type: Boolean,
+      default: false,
+    },
+    embeddingCount: {
+      type: Number,
+      default: 0,
+    },
+    modelVersion: {
+      type: String,
+      default: "",
+    },
+    enrolledAt: {
+      type: Date,
+      default: null,
+    },
+    updatedAt: {
+      type: Date,
+      default: null,
+    },
+  },
 }, { timestamps: true });
 
 // Sub-schema for Attendance
@@ -55,8 +82,54 @@ const attendanceSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["Present", "Absent", "Leave"],
+    enum: ["Present", "Late", "Half Day", "Absent", "Leave"],
     default: "Present"
+  },
+  remarks: {
+    type: String,
+    default: ""
+  },
+  workDurationMinutes: {
+    type: Number,
+    default: null
+  },
+  verificationMethod: {
+    type: String,
+    enum: ["Manual", "Facial Recognition", "Mobile Self Check-In", "Camera Kiosk"],
+    default: "Manual"
+  },
+  confidence: {
+    type: Number,
+    default: null
+  },
+  checkInTime: {
+    type: Date,
+    default: null
+  },
+  checkOutTime: {
+    type: Date,
+    default: null
+  },
+  gpsLatitude: {
+    type: Number,
+    default: null
+  },
+  gpsLongitude: {
+    type: Number,
+    default: null
+  },
+  gpsAccuracy: {
+    type: Number,
+    default: null
+  },
+  geofenceStatus: {
+    type: String,
+    enum: ["PASSED", "FAILED", "NOT_REQUIRED"],
+    default: "NOT_REQUIRED"
+  },
+  distanceFromLocationMeters: {
+    type: Number,
+    default: null
   }
 }, { timestamps: true });
 
@@ -120,6 +193,44 @@ const companySchema = new mongoose.Schema(
       default: "Active",
     },
     
+    shiftSettings: {
+      startTime: {
+        type: String,
+        default: "09:00",
+      },
+      endTime: {
+        type: String,
+        default: "17:00",
+      },
+      gracePeriodMinutes: {
+        type: Number,
+        default: 15,
+      },
+    },
+
+    workLocation: {
+      name: {
+        type: String,
+        default: "Main Office / HQ",
+      },
+      latitude: {
+        type: Number,
+        default: 12.9716, // Default to Bangalore HQ coordinates (configurable)
+      },
+      longitude: {
+        type: Number,
+        default: 77.5946,
+      },
+      radiusMeters: {
+        type: Number,
+        default: 200, // Allowed radius in meters
+      },
+      enabled: {
+        type: Boolean,
+        default: true,
+      },
+    },
+
     // Embedded Sub-collections
     employees: [employeeSchema],
     attendance: [attendanceSchema],

@@ -129,3 +129,44 @@ export const deleteAttendance = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 }
+
+// Get Company Shift Settings
+export const getShiftSettings = async (req, res) => {
+  try {
+    const company = await Company.findById(req.user.companyId);
+    if (!company) return res.status(404).json({ message: "Company not found" });
+
+    return res.json(company.shiftSettings || {
+      startTime: "09:00",
+      endTime: "17:00",
+      gracePeriodMinutes: 15,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+// Update Company Shift Settings
+export const updateShiftSettings = async (req, res) => {
+  try {
+    const { startTime, endTime, gracePeriodMinutes } = req.body;
+    const company = await Company.findById(req.user.companyId);
+    if (!company) return res.status(404).json({ message: "Company not found" });
+
+    company.shiftSettings = {
+      startTime: startTime || company.shiftSettings?.startTime || "09:00",
+      endTime: endTime || company.shiftSettings?.endTime || "17:00",
+      gracePeriodMinutes: Number(gracePeriodMinutes ?? company.shiftSettings?.gracePeriodMinutes ?? 15),
+    };
+
+    await company.save();
+    return res.json({
+      success: true,
+      message: "Shift settings updated successfully",
+      shiftSettings: company.shiftSettings,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+

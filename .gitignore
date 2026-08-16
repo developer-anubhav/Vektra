@@ -3,3 +3,13 @@ node_modules/
 dist/
 .DS_Store
 .vscode/
+agent_context_facial_attendance_hr_system(1).md
+facial_recognition_attendance_implementation_plan(1).md
+
+# Face service
+face-service/venv/
+face-service/data/embeddings.json
+face-service/__pycache__/
+face-service/**/__pycache__/
+face-service/**/*.pyc
+face-service/.facenet/
