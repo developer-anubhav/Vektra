@@ -8,8 +8,8 @@ import {
 } from "../middleware/copilotMiddleware.js";
 import CopilotConversation from "../models/CopilotConversation.js";
 import Employee from "../models/Employee.js";
-import User from "../models/userModel.js";
 import config from "../config/env.js";
+import { copilotServiceBreaker } from "../utils/circuitBreaker.js";
 
 const router = express.Router();
 
@@ -142,13 +142,16 @@ router.post(
         ? `${config.copilotServiceUrl}/agent/chat/stream`
         : `${config.copilotServiceUrl}/agent/chat`;
 
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Internal-Secret": config.internalServiceSecret,
-        },
-        body: JSON.stringify(forwardPayload),
+      const response = await copilotServiceBreaker.execute(async (signal) => {
+        return await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Internal-Secret": config.internalServiceSecret,
+          },
+          body: JSON.stringify(forwardPayload),
+          signal,
+        });
       });
 
       if (!response.ok) {
