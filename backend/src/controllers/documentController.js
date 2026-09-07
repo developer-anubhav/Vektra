@@ -1,7 +1,8 @@
-import CompanyDocument from "../models/CompanyDocument.js";
+import CompanyDocument, { normalizeCategory, CANONICAL_CATEGORIES } from "../models/CompanyDocument.js";
 import Company from "../models/Company.js";
 import User from "../models/userModel.js";
 import { uploadToGridFS, getDownloadStream, deleteFromGridFS } from "../services/gridfsService.js";
+import { enqueueDocumentIngestion, softExpireDocumentChunks } from "../jobs/documentIngestionQueue.js";
 
 const VALID_CATEGORIES = [
   "TERMS_AND_CONDITIONS",
@@ -9,6 +10,7 @@ const VALID_CATEGORIES = [
   "HANDBOOK",
   "COMPLIANCE",
   "OTHER",
+  ...CANONICAL_CATEGORIES,
 ];
 
 const safeFileName = (filename) => {
@@ -60,8 +62,11 @@ export const uploadDocument = async (req, res) => {
       return res.status(400).json({ message: "Document title is required." });
     }
 
-    const normCategory = (category || "").toUpperCase();
-    if (!normCategory || !VALID_CATEGORIES.includes(normCategory)) {
+    const rawCategory = (category || "").trim();
+    const upperCategory = rawCategory.toUpperCase();
+    const canonicalCategory = normalizeCategory(rawCategory);
+
+    if (!VALID_CATEGORIES.includes(rawCategory) && !VALID_CATEGORIES.includes(upperCategory)) {
       return res.status(400).json({
         message: `Invalid category. Allowed categories: ${VALID_CATEGORIES.join(", ")}`,
       });
@@ -78,17 +83,29 @@ export const uploadDocument = async (req, res) => {
       { companyId: companyId.toString(), uploadedBy: uploadedBy?.toString() }
     );
 
-    // Save structured metadata in Mongoose collection
+    // Save structured metadata in Mongoose collection with canonical category
     const document = await CompanyDocument.create({
       companyId,
       title: title.trim(),
-      category: normCategory,
+      category: canonicalCategory,
+      ingestionStatus: "pending",
       fileId,
       fileName,
       fileSize: req.file.size,
       mimeType: req.file.mimetype,
       uploadedBy,
       isActive: true,
+    });
+
+    // Phase 6 Requirement 2: Enqueue background ingestion job rather than blocking the HTTP response
+    enqueueDocumentIngestion({
+      documentId: document._id,
+      companyId,
+      category: canonicalCategory,
+      fileName,
+      fileBuffer: req.file.buffer,
+      fileId,
+      uploadedAt: document.createdAt || new Date(),
     });
 
     const populatedDoc = await CompanyDocument.findById(document._id).populate(
@@ -133,10 +150,11 @@ export const listDocuments = async (req, res) => {
     };
 
     if (category && category.toUpperCase() !== "ALL") {
-      if (VALID_CATEGORIES.includes(category.toUpperCase())) {
-        query.category = category.toUpperCase();
-      }
+      const canonical = normalizeCategory(category);
+      const upper = category.toUpperCase();
+      query.category = { $in: [category, canonical, upper] };
     }
+
 
     if (search && search.trim()) {
       query.title = { $regex: search.trim(), $options: "i" };
@@ -231,6 +249,13 @@ export const deleteDocument = async (req, res) => {
 
     document.isActive = false;
     await document.save();
+
+    // Phase 6 Requirement 6: Immediately set valid_until = now on that document's existing chunks
+    await softExpireDocumentChunks({
+      companyId,
+      documentId: document._id,
+      sourceDoc: document.fileName,
+    });
 
     return res.status(200).json({
       message: "Document deleted successfully",

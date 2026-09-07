@@ -55,6 +55,12 @@
 
 @layer base {
   :root {
+    --vektra-blue: #3D6AB8;
+    --vektra-cyan: #9DFFF9;
+    --vektra-emerald: #054D19;
+    --vektra-lavender: #C7C1D7;
+    --vektra-taupe: #7A5C58;
+
     --background: 210 20% 98%;
     --foreground: 220 20% 12%;
     --card: 0 0% 100%;
@@ -259,6 +265,18 @@
 .copilot-suggestion-label {
   font-weight: 700 !important;
   color: #475569 !important;
+}
+
+/* Custom AI Cyan Glow Utilities */
+.ai-glow-cyan {
+  box-shadow: 0 0 15px rgba(157, 255, 249, 0.4);
+  border: 1px solid #9DFFF9;
+}
+
+.ai-rag-badge {
+  background-color: #054D19;
+  color: #9DFFF9;
+  border: 1px solid rgba(157, 255, 249, 0.3);
 }
 
 

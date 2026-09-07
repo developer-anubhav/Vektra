@@ -23,6 +23,7 @@ from agent.tools import (
     format_currency_hrms,
 )
 from agent.router import extract_query_entities, route_query_request
+from rag.ingestion import get_category_display_label
 from llm_provider import get_llm_provider, NOT_AVAILABLE_FALLBACK
 
 class HRAgent:
@@ -160,6 +161,7 @@ class HRAgent:
                     requester_role=role,
                     requester_user_id=user_id,
                     date_range=entities.date_range,
+                    employee_override=employee_data,
                 )
                 if res.get("status") == "FORBIDDEN":
                     return {
@@ -206,6 +208,7 @@ class HRAgent:
                     target_user_id=target_id,
                     requester_role=role,
                     requester_user_id=user_id,
+                    employee_override=employee_data,
                 )
                 if res.get("status") == "FORBIDDEN":
                     return {
@@ -349,6 +352,7 @@ class HRAgent:
                     target_user_id=target_id,
                     requester_role=role,
                     requester_user_id=user_id,
+                    employee_override=employee_data,
                 )
                 if res.get("status") == "FORBIDDEN":
                     return {
@@ -440,8 +444,9 @@ class HRAgent:
                     "status": "COMPLETED",
                 }
 
-        # 6. Controlled Policy RAG Retrieval (Constraint 4, 6, 7)
-        chunks = query_company_policies(company_id=company_id, query=cleaned_query)
+        # 6. Controlled Policy RAG Retrieval (with optional Category Filter)
+        cat_filter = getattr(routing, "category_filter", None) or getattr(entities, "target_doc_category", None)
+        chunks = query_company_policies(company_id=company_id, query=cleaned_query, category=cat_filter)
 
         if not chunks:
             # Unresolved query produces auto-draft escalation (Constraint 8)
@@ -461,22 +466,28 @@ class HRAgent:
                 "status": "NOT_AVAILABLE_IN_RECORDS",
             }
 
-        # LLM Synthesis with Grounding Citations (Constraint 6)
+        # LLM Synthesis with Grounding Citations (Phase 6 Requirement 7)
         citations = [
             {
                 "document": c.get("source_doc"),
                 "source_doc": c.get("source_doc"),
+                "category": c.get("category"),
+                "category_label": get_category_display_label(c.get("category")),
                 "page": c.get("page_number", 1),
                 "page_number": c.get("page_number", 1),
                 "section": c.get("section", "General"),
+                "citation_text": f"[{get_category_display_label(c.get('category'))} — {c.get('source_doc')}, Page {c.get('page_number', 1)}]",
             }
             for c in chunks
         ]
 
         top_chunk = chunks[0]
+        top_cat_label = get_category_display_label(top_chunk.get("category"))
+        top_doc_name = top_chunk.get("source_doc", "Company Document")
+        top_page = top_chunk.get("page_number", 1)
         grounded_answer = (
-            f"According to {top_chunk.get('source_doc')} (Page {top_chunk.get('page_number', 1)}, "
-            f"Section: '{top_chunk.get('section', 'General')}'):\n\n{top_chunk.get('content')}"
+            f"According to [{top_cat_label} — {top_doc_name}, Page {top_page}] "
+            f"(Section: '{top_chunk.get('section', 'General')}'):\n\n{top_chunk.get('content')}"
         )
 
         return {

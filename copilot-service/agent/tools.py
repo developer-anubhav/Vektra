@@ -165,143 +165,6 @@ MOCK_EMPLOYEE_STORE = {
             "last_appraisal_date": "2026-06-30",
         },
     },
-    # Live Database Organization (ObjectId: 6a9412abe990c121b9b51970)
-    ("6a9412abe990c121b9b51970", "6a941487e990c121b9b51a05"): {
-        "user_id": "6a941487e990c121b9b51a05",
-        "company_id": "6a9412abe990c121b9b51970",
-        "name": "Ashraf Sami",
-        "email": "ashrafsami1514@gmail.com",
-        "phone": "+91-7349505970",
-        "department": "Engineering",
-        "designation": "Software Engineer",
-        "role": "EMPLOYEE",
-        "date_of_joining": "2024-02-01",
-        "status": "Active",
-        "work_location": "Engineering Lab 1",
-        "leave_balance": {"casual": 10, "sick": 12, "annual": 18, "unpaid": 0},
-        "leave_history": [
-            {"date": "2026-08-15", "type": "Casual", "days": 1, "status": "Approved", "reason": "Personal"}
-        ],
-        "attendance_pct": 98.5,
-        "attendance_summary": {
-            "total_working_days": 160,
-            "present_days": 158,
-            "absent_days": 0,
-            "late_days": 2,
-            "half_days": 0,
-        },
-        "attendance_history": [
-            {"date": "2026-09-01", "clock_in": "09:00 AM", "clock_out": "06:00 PM", "shift_status": "On-Time"},
-        ],
-        "monthly_salary": 2.99,
-        "salary_details": {
-            "base_salary": 2.99,
-            "hra": 0.0,
-            "special_allowances": 0.0,
-            "deductions": 0.0,
-            "net_monthly": 2.99,
-            "currency": "USD",
-            "effective_date": "2026-01-01",
-        },
-        "performance": {
-            "rating": 4.9,
-            "scale": 5.0,
-            "review_period": "2025-2026 H1",
-            "goals_completed": 10,
-            "total_goals": 10,
-            "kpis": {"Code Quality": "98%", "System Reliability": "99.9%"},
-            "manager_feedback": "Outstanding engineering performance.",
-            "last_appraisal_date": "2026-06-30",
-        },
-    },
-    ("6a9412abe990c121b9b51970", "6a9413bde990c121b9b519a6"): {
-        "user_id": "6a9413bde990c121b9b519a6",
-        "company_id": "6a9412abe990c121b9b51970",
-        "name": "Farhan Ahsan",
-        "email": "neonfarhan5@gmail.com",
-        "phone": "+91-9876543210",
-        "department": "Engineering",
-        "designation": "HR Manager",
-        "role": "HR",
-        "date_of_joining": "2023-01-15",
-        "status": "Active",
-        "work_location": "Tower A, HR Suite",
-        "leave_balance": {"casual": 12, "sick": 14, "annual": 20, "unpaid": 0},
-        "leave_history": [],
-        "attendance_pct": 99.0,
-        "attendance_summary": {
-            "total_working_days": 160,
-            "present_days": 159,
-            "absent_days": 0,
-            "late_days": 1,
-            "half_days": 0,
-        },
-        "attendance_history": [],
-        "monthly_salary": 1500000,
-        "salary_details": {
-            "base_salary": 1200000.0,
-            "hra": 200000.0,
-            "special_allowances": 100000.0,
-            "deductions": 0.0,
-            "net_monthly": 1500000.0,
-            "currency": "INR",
-            "effective_date": "2026-01-01",
-        },
-        "performance": {
-            "rating": 5.0,
-            "scale": 5.0,
-            "review_period": "2025-2026 H1",
-            "goals_completed": 10,
-            "total_goals": 10,
-            "kpis": {"Talent Retention": "98%", "Policy Compliance": "100%"},
-            "manager_feedback": "Exemplary HR leadership.",
-            "last_appraisal_date": "2026-06-30",
-        },
-    },
-    ("6a9412abe990c121b9b51970", "6a9412ace990c121b9b51972"): {
-        "user_id": "6a9412ace990c121b9b51972",
-        "company_id": "6a9412abe990c121b9b51970",
-        "name": "Anubhav Das",
-        "email": "anubhavfordev24@gmail.com",
-        "phone": "+91-9988776655",
-        "department": "Management",
-        "designation": "Administrator",
-        "role": "ADMIN",
-        "date_of_joining": "2022-01-01",
-        "status": "Active",
-        "work_location": "HQ Executive Suite",
-        "leave_balance": {"casual": 15, "sick": 15, "annual": 25, "unpaid": 0},
-        "leave_history": [],
-        "attendance_pct": 100.0,
-        "attendance_summary": {
-            "total_working_days": 160,
-            "present_days": 160,
-            "absent_days": 0,
-            "late_days": 0,
-            "half_days": 0,
-        },
-        "attendance_history": [],
-        "monthly_salary": 2000000,
-        "salary_details": {
-            "base_salary": 1600000.0,
-            "hra": 300000.0,
-            "special_allowances": 100000.0,
-            "deductions": 0.0,
-            "net_monthly": 2000000.0,
-            "currency": "INR",
-            "effective_date": "2026-01-01",
-        },
-        "performance": {
-            "rating": 5.0,
-            "scale": 5.0,
-            "review_period": "2025-2026 H1",
-            "goals_completed": 10,
-            "total_goals": 10,
-            "kpis": {"System Health": "100%", "Organization Growth": "150%"},
-            "manager_feedback": "Visionary administration.",
-            "last_appraisal_date": "2026-06-30",
-        },
-    },
 }
 
 MOCK_PAYROLL_STORE = {
@@ -325,20 +188,13 @@ MOCK_PAYROLL_STORE = {
         "status": "COMPLETED",
         "approved_by": "HR Admin Beta",
     },
-    ("6a9412abe990c121b9b51970", "run_2026_08"): {
-        "run_id": "run_2026_08",
-        "company_id": "6a9412abe990c121b9b51970",
-        "month": 8,
-        "year": 2026,
-        "total_disbursed": 3530002.99,
-        "employee_count": 4,
-        "status": "COMPLETED",
-        "approved_by": "Anubhav Das",
-    },
 }
 
 def _find_record(company_id: str, target_user_id: str) -> Optional[Dict[str, Any]]:
-    """Helper that looks up employee record with multi-tenant scoping and fallback."""
+    """Helper that looks up employee record with strict multi-tenant scoping."""
+    if not company_id or not target_user_id:
+        return None
+
     key = (str(company_id), str(target_user_id))
     if key in MOCK_EMPLOYEE_STORE:
         return MOCK_EMPLOYEE_STORE[key]
@@ -348,18 +204,7 @@ def _find_record(company_id: str, target_user_id: str) -> Optional[Dict[str, Any
         if cid == str(company_id) and (uid == str(target_user_id) or rec.get("user_id") == str(target_user_id)):
             return rec
 
-    # Check across any company
-    for (cid, uid), rec in MOCK_EMPLOYEE_STORE.items():
-        if uid == str(target_user_id) or rec.get("user_id") == str(target_user_id):
-            return rec
-
-    # If company has any records, fallback to first record
-    company_records = [r for (c, _), r in MOCK_EMPLOYEE_STORE.items() if c == str(company_id)]
-    if company_records:
-        return company_records[0]
-
-    # Fallback to default demo employee
-    return MOCK_EMPLOYEE_STORE.get(("tenant_alpha", "emp_alpha_01"))
+    return None
 
 def _enforce_scoping(
     company_id: str,
@@ -410,23 +255,27 @@ def format_currency_hrms(amount, currency="INR") -> str:
 
 def fetch_employee_profile(
     company_id: str,
-    target_user_id: str,
-    requester_role: str,
-    requester_user_id: str,
+    target_user_id: Optional[str] = None,
+    requester_role: str = "EMPLOYEE",
+    requester_user_id: Optional[str] = None,
     employee_override: Optional[Dict[str, Any]] = None,
+    user_id: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Fetches employee profile details with strict multi-tenant and RBAC enforcement.
     """
-    rbac_err = _enforce_scoping(company_id, target_user_id, requester_role, requester_user_id)
+    effective_target_id = target_user_id or user_id or requester_user_id
+    effective_requester_id = requester_user_id or user_id or effective_target_id
+
+    rbac_err = _enforce_scoping(company_id, effective_target_id, requester_role, effective_requester_id)
     if rbac_err:
         return rbac_err
 
-    record = employee_override or _find_record(company_id, target_user_id)
+    record = employee_override or _find_record(company_id, effective_target_id)
     if not record:
         return {
             "status": "NOT_FOUND",
-            "message": f"No employee profile found for ID {target_user_id} in company {company_id}.",
+            "message": f"No employee profile found for ID {effective_target_id} in company {company_id}.",
         }
 
     sal_val = record.get("monthlySalary") if record.get("monthlySalary") is not None else record.get("monthly_salary", 0)
@@ -526,6 +375,7 @@ def fetch_employee_attendance(
     requester_role: str,
     requester_user_id: str,
     date_range: Optional[str] = None,
+    employee_override: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Fetches employee attendance statistics and recent logs.
@@ -534,7 +384,7 @@ def fetch_employee_attendance(
     if rbac_err:
         return rbac_err
 
-    record = _find_record(company_id, target_user_id)
+    record = employee_override or _find_record(company_id, target_user_id)
     if not record:
         return {
             "status": "NOT_FOUND",
@@ -544,8 +394,8 @@ def fetch_employee_attendance(
     return {
         "status": "SUCCESS",
         "company_id": company_id,
-        "user_id": record["user_id"],
-        "name": record["name"],
+        "user_id": record.get("user_id", target_user_id),
+        "name": record.get("name", "Employee"),
         "attendance_percentage": record.get("attendance_pct", 0),
         "summary": record.get("attendance_summary", {}),
         "recent_logs": record.get("attendance_history", []),
@@ -557,6 +407,7 @@ def fetch_employee_leave(
     target_user_id: str,
     requester_role: str,
     requester_user_id: str,
+    employee_override: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Fetches employee leave balances and leave request history.
@@ -565,7 +416,7 @@ def fetch_employee_leave(
     if rbac_err:
         return rbac_err
 
-    record = _find_record(company_id, target_user_id)
+    record = employee_override or _find_record(company_id, target_user_id)
     if not record:
         return {
             "status": "NOT_FOUND",
@@ -575,8 +426,8 @@ def fetch_employee_leave(
     return {
         "status": "SUCCESS",
         "company_id": company_id,
-        "user_id": record["user_id"],
-        "name": record["name"],
+        "user_id": record.get("user_id", target_user_id),
+        "name": record.get("name", "Employee"),
         "leave_balance": record.get("leave_balance", {}),
         "leave_history": record.get("leave_history", []),
     }
@@ -586,6 +437,7 @@ def fetch_employee_performance(
     target_user_id: str,
     requester_role: str,
     requester_user_id: str,
+    employee_override: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Fetches employee performance ratings, KPIs, and review history.
@@ -594,7 +446,7 @@ def fetch_employee_performance(
     if rbac_err:
         return rbac_err
 
-    record = _find_record(company_id, target_user_id)
+    record = employee_override or _find_record(company_id, target_user_id)
     if not record:
         return {
             "status": "NOT_FOUND",
@@ -605,8 +457,8 @@ def fetch_employee_performance(
     return {
         "status": "SUCCESS",
         "company_id": company_id,
-        "user_id": record["user_id"],
-        "name": record["name"],
+        "user_id": record.get("user_id", target_user_id),
+        "name": record.get("name", "Employee"),
         "rating": perf.get("rating"),
         "scale": perf.get("scale", 5.0),
         "review_period": perf.get("review_period"),
@@ -622,6 +474,7 @@ def fetch_employee_stats(
     target_user_id: str,
     requester_role: str,
     requester_user_id: str,
+    employee_override: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Backward-compatible aggregate stats tool:
@@ -632,7 +485,7 @@ def fetch_employee_stats(
     if rbac_err:
         return rbac_err
 
-    record = _find_record(company_id, target_user_id)
+    record = employee_override or _find_record(company_id, target_user_id)
     if not record:
         return {
             "status": "NOT_FOUND",
@@ -654,8 +507,8 @@ def fetch_employee_stats(
 def fetch_payroll_run_details(
     company_id: str,
     run_id: str,
-    requester_role: str,
-    requester_user_id: str,
+    requester_role: str = "HR",
+    requester_user_id: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Fetches aggregate payroll run metrics:
@@ -701,8 +554,136 @@ def fetch_payroll_run_details(
         "approved_by": record["approved_by"],
     }
 
-def query_company_policies(company_id: str, query: str) -> List[Dict[str, Any]]:
+# --- Phase 5 Explicit Tools & Aliases ---
+
+def fetch_salary_details(
+    company_id: str,
+    user_id: Optional[str] = None,
+    requester_role: str = "EMPLOYEE",
+    requester_user_id: Optional[str] = None,
+    target_user_id: Optional[str] = None,
+    employee_override: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
     """
-    Tool wrapping tenant-isolated RAG retrieval.
+    Phase 5 Tool:
+    fetch_salary_details(company_id, user_id) — EMPLOYEE: own record only; HR/ADMIN: individual or aggregate within tenant
     """
-    return retrieve_company_documents(company_id=company_id, query=query, top_k=4)
+    effective_target_id = target_user_id or user_id or requester_user_id
+    effective_requester_id = requester_user_id or user_id or effective_target_id
+    return fetch_employee_salary(
+        company_id=company_id,
+        target_user_id=effective_target_id,
+        requester_role=requester_role,
+        requester_user_id=effective_requester_id,
+        employee_override=employee_override,
+    )
+
+def fetch_attendance_records(
+    company_id: str,
+    user_id: Optional[str] = None,
+    date_range: Optional[str] = None,
+    requester_role: str = "EMPLOYEE",
+    requester_user_id: Optional[str] = None,
+    target_user_id: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Phase 5 Tool:
+    fetch_attendance_records(company_id, user_id, date_range)
+    """
+    effective_target_id = target_user_id or user_id or requester_user_id
+    effective_requester_id = requester_user_id or user_id or effective_target_id
+    return fetch_employee_attendance(
+        company_id=company_id,
+        target_user_id=effective_target_id,
+        requester_role=requester_role,
+        requester_user_id=effective_requester_id,
+        date_range=date_range,
+    )
+
+def fetch_leave_balance(
+    company_id: str,
+    user_id: Optional[str] = None,
+    requester_role: str = "EMPLOYEE",
+    requester_user_id: Optional[str] = None,
+    target_user_id: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Phase 5 Tool:
+    fetch_leave_balance(company_id, user_id)
+    """
+    effective_target_id = target_user_id or user_id or requester_user_id
+    effective_requester_id = requester_user_id or user_id or effective_target_id
+    res = fetch_employee_leave(
+        company_id=company_id,
+        target_user_id=effective_target_id,
+        requester_role=requester_role,
+        requester_user_id=effective_requester_id,
+    )
+    if res.get("status") == "SUCCESS":
+        return {
+            "status": "SUCCESS",
+            "company_id": company_id,
+            "user_id": res.get("user_id"),
+            "name": res.get("name"),
+            "leave_balance": res.get("leave_balance", {}),
+        }
+    return res
+
+def fetch_leave_history(
+    company_id: str,
+    user_id: Optional[str] = None,
+    date_range: Optional[str] = None,
+    requester_role: str = "EMPLOYEE",
+    requester_user_id: Optional[str] = None,
+    target_user_id: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Phase 5 Tool:
+    fetch_leave_history(company_id, user_id, date_range)
+    """
+    effective_target_id = target_user_id or user_id or requester_user_id
+    effective_requester_id = requester_user_id or user_id or effective_target_id
+    res = fetch_employee_leave(
+        company_id=company_id,
+        target_user_id=effective_target_id,
+        requester_role=requester_role,
+        requester_user_id=effective_requester_id,
+    )
+    if res.get("status") == "SUCCESS":
+        return {
+            "status": "SUCCESS",
+            "company_id": company_id,
+            "user_id": res.get("user_id"),
+            "name": res.get("name"),
+            "leave_history": res.get("leave_history", []),
+            "filter_date_range": date_range,
+        }
+    return res
+
+def fetch_performance_reviews(
+    company_id: str,
+    user_id: Optional[str] = None,
+    requester_role: str = "EMPLOYEE",
+    requester_user_id: Optional[str] = None,
+    target_user_id: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Phase 5 Tool:
+    fetch_performance_reviews(company_id, user_id)
+    """
+    effective_target_id = target_user_id or user_id or requester_user_id
+    effective_requester_id = requester_user_id or user_id or effective_target_id
+    return fetch_employee_performance(
+        company_id=company_id,
+        target_user_id=effective_target_id,
+        requester_role=requester_role,
+        requester_user_id=effective_requester_id,
+    )
+
+def query_company_policies(company_id: str, query: str, category: Optional[str] = None) -> List[Dict[str, Any]]:
+    """
+    Tool wrapping tenant-isolated RAG retrieval with optional category filtering.
+    """
+    return retrieve_company_documents(company_id=company_id, query=query, category=category, top_k=4)
+
+

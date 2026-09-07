@@ -10,12 +10,14 @@ class QueryEntities:
     date_range: Optional[str]           # Extracted date/period string
     is_self_query: bool                 # Whether user is asking about themselves
     extracted_keywords: list[str]       # Key phrases found
+    target_doc_category: Optional[str] = None  # Category filter if specified
 
 @dataclass
 class RoutingDecision:
     route_type: str                     # 'DIRECT_DB_LOOKUP', 'CHROMA_RAG', or 'UNRESOLVED'
     tool_name: str                      # Function name to invoke
     reason: str                         # Routing rationale
+    category_filter: Optional[str] = None
 
 # Regex matchers for entity extraction
 EMP_ID_PATTERN = re.compile(r"\b(emp_[a-zA-Z0-9_]+)\b", re.IGNORECASE)
@@ -26,6 +28,18 @@ DATE_RANGE_PATTERNS = [
     re.compile(r"\b(?:january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{4}\b", re.IGNORECASE),
     re.compile(r"\b(?:this\s+month|last\s+month|this\s+year|last\s+year|today|yesterday|this\s+week)\b", re.IGNORECASE),
 ]
+
+def detect_category_name(query: str) -> Optional[str]:
+    q_lower = query.lower()
+    if any(k in q_lower for k in ["terms and conditions", "terms & conditions", "terms of service", "terms and condition", "terms_and_conditions", "t&c"]):
+        return "terms_and_conditions"
+    if any(k in q_lower for k in ["compliance", "regulatory", "compliance and regulatory", "compliance & regulatory", "regulations", "gdpr", "iso", "compliance_regulatory", "statutory", "data retention"]):
+        return "compliance_regulatory"
+    if any(k in q_lower for k in ["handbook", "employee handbook", "staff handbook", "employee_handbooks", "handbooks"]):
+        return "employee_handbooks"
+    if any(k in q_lower for k in ["policy", "company policy", "company policies", "policies", "company_policies", "guideline", "guidelines", "code of conduct"]):
+        return "company_policies"
+    return None
 
 def extract_query_entities(query: str, requester_user_id: Optional[str] = None) -> QueryEntities:
     """
@@ -63,12 +77,17 @@ def extract_query_entities(query: str, requester_user_id: Optional[str] = None) 
             keywords_found.append(f"date_range:{date_range}")
             break
 
-    # 3. Data category extraction
+    # 3. Category detection
+    doc_category = detect_category_name(query)
+    if doc_category:
+        keywords_found.append(f"doc_category:{doc_category}")
+
+    # 4. Data category extraction
     # Distinguish between policy RAG questions vs structured facts
-    is_explicit_policy = any(k in q_lower for k in [
+    is_explicit_policy = bool(doc_category) or any(k in q_lower for k in [
         "policy", "handbook", "guideline", "guidelines", "code of conduct",
         "official rules", "regulations", "procedure", "how many days are allowed by company policy",
-        "standard policy", "evacuation", "dress code", "remote work rules"
+        "standard policy", "evacuation", "dress code", "remote work rules", "compliance", "terms"
     ]) and not (is_self and any(k in q_lower for k in ["my salary", "my attendance", "my balance", "my profile", "my rating"]))
 
     if is_explicit_policy:
@@ -114,6 +133,7 @@ def extract_query_entities(query: str, requester_user_id: Optional[str] = None) 
         date_range=date_range,
         is_self_query=is_self,
         extracted_keywords=keywords_found,
+        target_doc_category=doc_category,
     )
 
 def route_query_request(entities: QueryEntities) -> RoutingDecision:
@@ -125,53 +145,63 @@ def route_query_request(entities: QueryEntities) -> RoutingDecision:
     Do not depend on vector similarity alone to decide this routing.
     """
     cat = entities.data_category
+    doc_cat_filter = entities.target_doc_category
 
     if cat == "salary":
         return RoutingDecision(
             route_type="DIRECT_DB_LOOKUP",
             tool_name="fetch_employee_salary",
             reason="Exact structured fact: employee compensation records",
+            category_filter=None,
         )
     elif cat == "attendance":
         return RoutingDecision(
             route_type="DIRECT_DB_LOOKUP",
             tool_name="fetch_employee_attendance",
             reason="Exact structured fact: employee attendance logs & summary",
+            category_filter=None,
         )
     elif cat == "leave":
         return RoutingDecision(
             route_type="DIRECT_DB_LOOKUP",
             tool_name="fetch_employee_leave",
             reason="Exact structured fact: employee leave balances & history",
+            category_filter=None,
         )
     elif cat == "profile":
         return RoutingDecision(
             route_type="DIRECT_DB_LOOKUP",
             tool_name="fetch_employee_profile",
             reason="Exact structured fact: employee core profile & employment details",
+            category_filter=None,
         )
     elif cat == "performance":
         return RoutingDecision(
             route_type="DIRECT_DB_LOOKUP",
             tool_name="fetch_employee_performance",
             reason="Exact structured fact: employee appraisals & KPI metrics",
+            category_filter=None,
         )
     elif cat == "payroll_aggregate":
         return RoutingDecision(
             route_type="DIRECT_DB_LOOKUP",
             tool_name="fetch_payroll_run_details",
             reason="Exact structured fact: aggregate tenant payroll run metrics",
+            category_filter=None,
         )
     elif cat == "policy":
         return RoutingDecision(
             route_type="CHROMA_RAG",
             tool_name="query_company_policies",
-            reason="Document knowledge: enterprise company policies & guidelines",
+            reason=f"Document knowledge: enterprise company policies & guidelines (filter: {doc_cat_filter})",
+            category_filter=doc_cat_filter,
         )
     else:
         # Unknown/Unspecified: fallback to ChromaDB RAG inspection first
         return RoutingDecision(
             route_type="CHROMA_RAG",
             tool_name="query_company_policies",
-            reason="General inquiry: search tenant document store",
+            reason=f"General inquiry: search tenant document store (filter: {doc_cat_filter})",
+            category_filter=doc_cat_filter,
         )
+

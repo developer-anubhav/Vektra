@@ -26,6 +26,7 @@ import {
   AlertCircle,
   CheckCircle2,
   FileSpreadsheet,
+  Sparkles,
 } from "lucide-react";
 
 const CATEGORIES = [
@@ -43,6 +44,10 @@ const CATEGORY_COLORS = {
   HANDBOOK: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
   COMPLIANCE: "bg-amber-500/20 text-amber-300 border-amber-500/40",
   OTHER: "bg-slate-700/50 text-slate-200 border-slate-600",
+  terms_and_conditions: "bg-purple-500/20 text-purple-300 border-purple-500/40",
+  company_policies: "bg-blue-500/20 text-blue-300 border-blue-500/40",
+  employee_handbooks: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+  compliance_regulatory: "bg-amber-500/20 text-amber-300 border-amber-500/40",
 };
 
 const CATEGORY_ICONS = {
@@ -51,6 +56,29 @@ const CATEGORY_ICONS = {
   HANDBOOK: BookOpen,
   COMPLIANCE: Shield,
   OTHER: FileCode,
+  terms_and_conditions: Scale,
+  company_policies: FileCheck,
+  employee_handbooks: BookOpen,
+  compliance_regulatory: Shield,
+};
+
+const INGESTION_STATUS_CONFIG = {
+  indexed: {
+    label: "RAG Indexed",
+    className: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+  },
+  processing: {
+    label: "Indexing...",
+    className: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40 animate-pulse",
+  },
+  pending: {
+    label: "Queued",
+    className: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+  },
+  failed: {
+    label: "Failed",
+    className: "bg-rose-500/20 text-rose-300 border-rose-500/40",
+  },
 };
 
 export default function Documents() {
@@ -385,7 +413,20 @@ export default function Documents() {
                         {doc.category.replace(/_/g, " ")}
                       </span>
 
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                        {/* AI RAG Ingestion Status Badge */}
+                        {doc.ingestionStatus && (
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold border uppercase tracking-wider ${
+                              (INGESTION_STATUS_CONFIG[doc.ingestionStatus] || INGESTION_STATUS_CONFIG.pending).className
+                            }`}
+                            title={`AI Co-Pilot Ingestion Status: ${doc.ingestionStatus}`}
+                          >
+                            <Sparkles size={10} className="shrink-0" />
+                            {(INGESTION_STATUS_CONFIG[doc.ingestionStatus] || INGESTION_STATUS_CONFIG.pending).label}
+                          </span>
+                        )}
+
                         {isPdf && (
                           <span className="px-2 py-0.5 bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] font-black rounded uppercase">
                             PDF

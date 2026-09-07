@@ -7,6 +7,7 @@ import {
   validatePayrollPayload,
 } from "../middleware/copilotMiddleware.js";
 import CopilotConversation from "../models/CopilotConversation.js";
+import AuditLog from "../models/AuditLog.js";
 import Employee from "../models/Employee.js";
 import User from "../models/userModel.js";
 import config from "../config/env.js";
@@ -98,11 +99,11 @@ router.post(
               name: u.name,
               email: u.email,
               role: u.role,
-              department: "Management",
-              monthlySalary: 2000000,
-              phoneNumber: "Not available",
-              employeeId: "ADM001",
-              status: "Active",
+              department: u.department || "General",
+              monthlySalary: u.monthlySalary !== undefined ? u.monthlySalary : 0,
+              phoneNumber: u.phone || u.phoneNumber || "Not available",
+              employeeId: u.employeeId || "Not assigned",
+              status: u.status || "Active",
             };
           }
         }
@@ -111,7 +112,7 @@ router.post(
           employeeData = {
             name: emp.name,
             employeeId: emp.employeeId || "Not assigned",
-            department: emp.department || "Engineering",
+            department: emp.department || "General",
             role: emp.role || role,
             email: emp.email,
             phoneNumber: emp.phoneNumber || "Not available",
@@ -121,6 +122,23 @@ router.post(
         }
       } catch (dbErr) {
         console.warn("[Copilot DB Lookup Warning]:", dbErr.message);
+      }
+    }
+
+    // Phase 5 Requirement 4: Record audit log entry when salary field is accessed
+    const isSalaryQuery = /\b(salary|compensation|wage|wages|payslip|pay|earnings)\b/i.test(userPrompt);
+    if (isSalaryQuery && mongoose.connection.readyState === 1) {
+      try {
+        await AuditLog.create({
+          accessorUserId: userId,
+          targetUserId: req.body?.targetUserId || userId,
+          companyId: companyId,
+          field: "salary",
+          status: "GRANTED",
+          timestamp: new Date(),
+        });
+      } catch (auditErr) {
+        console.warn("[AuditLog Warning]:", auditErr.message);
       }
     }
 

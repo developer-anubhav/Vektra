@@ -4,19 +4,44 @@ from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
 import httpx
 from config import settings
+from rag.ingestion import get_category_display_label
 
 logger = logging.getLogger("copilot.llm")
 
 SYSTEM_PROMPT = """You are the Vektra AI Co-Pilot, an enterprise HR intelligence assistant for Vektra E-HRMS.
 
-NON-NEGOTIABLE OPERATING DIRECTIVES:
-1. Answer ONLY using the official Company Documentation provided below.
-2. If the provided context does not contain sufficient facts to answer the question completely, you MUST state: "This information is not available in official records."
-3. NEVER speculate, guess, hallucinate, or use external knowledge beyond the provided documents.
-4. Always cite your sources with document name, page number, and section.
-5. Maintain a professional, concise HR tone."""
+DATA SCOPE & OPERATING DIRECTIVES:
+1. Data Scope: You have access to official company policy documentation and verified employee records covering:
+   - Full Employee Profile (designation, contact, department, date of joining, status, work location)
+   - Salary & Compensation (base salary, allowances, deductions, net monthly pay)
+   - Attendance (records, shifts, attendance percentage, punctuality)
+   - Leave (balances, leave history, casual/sick/annual leaves)
+   - Performance (reviews, appraisals, ratings, KPIs, manager feedback)
+   - Official Company Policies & Handbooks (code of conduct, safety, remote work, leave policies, terms & conditions, compliance)
+2. Grounding Directive: Answer ONLY using the official Company Documentation and verified structured records provided below.
+3. Fallback Directive: If the provided context does not contain sufficient facts to answer the question completely, you MUST state: "This information is not available in official records."
+4. Guardrail Directive: Out-of-domain requests (general trivia, coding help, mathematical puzzles, creative writing) are strictly prohibited and outside your operational domain.
+5. Citation Requirement: Always cite your sources with category, document name, and page number in the format: '[Category Label — Document Name, Page X]' (e.g. '[Compliance & Regulatory — Data_Retention_2026.pdf, Page 3]').
+6. Zero Speculation: NEVER speculate, guess, hallucinate, or use external knowledge beyond the provided documents and tenant data. Maintain a professional, concise HR tone."""
 
 NOT_AVAILABLE_FALLBACK = "This information is not available in official records."
+
+def format_citation_chip(c: Dict[str, Any]) -> Dict[str, Any]:
+    cat_label = get_category_display_label(c.get("category"))
+    source_doc = c.get("source_doc") or c.get("document") or "Company Document"
+    page = c.get("page_number", c.get("page", 1))
+    sec = c.get("section", "General")
+    citation_text = f"[{cat_label} — {source_doc}, Page {page}]"
+    return {
+        "document": source_doc,
+        "source_doc": source_doc,
+        "category": c.get("category"),
+        "category_label": cat_label,
+        "page": page,
+        "page_number": page,
+        "section": sec,
+        "citation_text": citation_text,
+    }
 
 class BaseLLMProvider(ABC):
     @abstractmethod
@@ -39,9 +64,10 @@ class BaseLLMProvider(ABC):
             doc = chunk.get("source_doc", "Document")
             page = chunk.get("page_number", 1)
             sec = chunk.get("section", "General")
+            cat_label = get_category_display_label(chunk.get("category"))
             text = chunk.get("content", "")
             context_parts.append(
-                f"[Source {i+1}: {doc}, Page {page}, Section: '{sec}']\n{text}"
+                f"[Source {i+1}: {cat_label} — {doc}, Page {page}, Section: '{sec}']\n{text}"
             )
 
         context_str = "\n\n".join(context_parts) if context_parts else "No company documentation found."
@@ -71,7 +97,9 @@ class GeminiProvider(BaseLLMProvider):
     def __init__(self):
         self.api_key = settings.GEMINI_API_KEY
         self.model = settings.GEMINI_MODEL or "gemini-1.5-flash"
-        self.api_url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
+        self.api_url = (
+            f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
+        )
 
     async def generate_response(
         self,
@@ -79,6 +107,10 @@ class GeminiProvider(BaseLLMProvider):
         retrieved_chunks: List[Dict[str, Any]],
         conversation_history: Optional[List[Dict[str, str]]] = None,
     ) -> Dict[str, Any]:
+        if not self.api_key or self.api_key.startswith("your_"):
+            logger.info("Gemini API key not configured. Using deterministic grounded fallback.")
+            return FallbackProvider().generate_grounded_fallback(query, retrieved_chunks)
+
         if not retrieved_chunks:
             return {
                 "answer": NOT_AVAILABLE_FALLBACK,
@@ -86,10 +118,6 @@ class GeminiProvider(BaseLLMProvider):
                 "grounded": False,
                 "provider": "gemini",
             }
-
-        if not self.api_key:
-            logger.warning("GEMINI_API_KEY is not configured. Falling back to grounded synthesizer.")
-            return FallbackProvider().generate_grounded_fallback(query, retrieved_chunks)
 
         prompt = self.build_prompt(query, retrieved_chunks, conversation_history)
         payload = {
@@ -106,16 +134,7 @@ class GeminiProvider(BaseLLMProvider):
                     if candidates:
                         content_parts = candidates[0].get("content", {}).get("parts", [])
                         text = "".join(p.get("text", "") for p in content_parts).strip()
-                        citations = [
-                            {
-                                "document": c.get("source_doc"),
-                                "source_doc": c.get("source_doc"),
-                                "page": c.get("page_number", 1),
-                                "page_number": c.get("page_number", 1),
-                                "section": c.get("section", "General"),
-                            }
-                            for c in retrieved_chunks
-                        ]
+                        citations = [format_citation_chip(c) for c in retrieved_chunks]
                         return {
                             "answer": text or NOT_AVAILABLE_FALLBACK,
                             "citations": citations,
@@ -161,16 +180,7 @@ class OllamaProvider(BaseLLMProvider):
                 if resp.status_code == 200:
                     data = resp.json()
                     text = data.get("response", "").strip()
-                    citations = [
-                        {
-                            "document": c.get("source_doc"),
-                            "source_doc": c.get("source_doc"),
-                            "page": c.get("page_number", 1),
-                            "page_number": c.get("page_number", 1),
-                            "section": c.get("section", "General"),
-                        }
-                        for c in retrieved_chunks
-                    ]
+                    citations = [format_citation_chip(c) for c in retrieved_chunks]
                     return {
                         "answer": text or NOT_AVAILABLE_FALLBACK,
                         "citations": citations,
@@ -203,21 +213,17 @@ class FallbackProvider(BaseLLMProvider):
                 "provider": "fallback",
             }
 
-        citations = [
-            {
-                "document": c.get("source_doc"),
-                "source_doc": c.get("source_doc"),
-                "page": c.get("page_number", 1),
-                "page_number": c.get("page_number", 1),
-                "section": c.get("section", "General"),
-            }
-            for c in retrieved_chunks
-        ]
+        citations = [format_citation_chip(c) for c in retrieved_chunks]
 
         top_chunk = retrieved_chunks[0]
+        cat_label = get_category_display_label(top_chunk.get("category"))
+        doc_name = top_chunk.get("source_doc", "Company Document")
+        page_num = top_chunk.get("page_number", 1)
+        sec_name = top_chunk.get("section", "General")
+
         summary = (
-            f"Based on {top_chunk.get('source_doc')} (Page {top_chunk.get('page_number', 1)}, "
-            f"Section: '{top_chunk.get('section', 'General')}'): {top_chunk.get('content')}"
+            f"Based on [{cat_label} — {doc_name}, Page {page_num}] "
+            f"(Section: '{sec_name}'): {top_chunk.get('content')}"
         )
 
         return {

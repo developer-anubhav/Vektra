@@ -8,7 +8,9 @@ from config import settings
 from middleware.auth import InternalSecretMiddleware, verify_internal_secret
 from security.scrubber import scrub_text, scrub_payload
 from security.guardrails import check_domain_guardrail
-from rag.ingestion import ingest_document, ingest_raw_text
+import base64
+import os
+from rag.ingestion import ingest_document, ingest_raw_text, expire_document_chunks, normalize_category, get_category_display_label
 from rag.retriever import retrieve_company_documents
 from llm_provider import get_llm_provider, NOT_AVAILABLE_FALLBACK
 
@@ -35,23 +37,46 @@ class IngestTextRequest(BaseModel):
     company_id: str = Field(..., description="Tenant Organization ID")
     source_doc: str = Field(..., description="Document filename/title")
     text: str = Field(..., description="Raw text content to ingest")
+    category: Optional[str] = Field("company_policies", description="Document category")
+    uploadedAt: Optional[str] = Field(None, description="Upload timestamp")
     valid_from: Optional[str] = Field(None, description="ISO datetime effective start")
     valid_until: Optional[str] = Field(None, description="ISO datetime effective expiry")
     section_name: Optional[str] = Field(None, description="Section heading")
+    document_id: Optional[str] = Field(None, description="MongoDB Document ID")
 
 class IngestFileRequest(BaseModel):
     company_id: str = Field(..., description="Tenant Organization ID")
     file_path: str = Field(..., description="Absolute or relative file path to PDF/text")
     source_doc: Optional[str] = Field(None, description="Optional custom document name")
+    category: Optional[str] = Field("company_policies", description="Document category")
+    uploadedAt: Optional[str] = Field(None, description="Upload timestamp")
     valid_from: Optional[str] = Field(None, description="ISO datetime effective start")
     valid_until: Optional[str] = Field(None, description="ISO datetime effective expiry")
     section_name: Optional[str] = Field(None, description="Section heading")
+    document_id: Optional[str] = Field(None, description="MongoDB Document ID")
+
+class IngestDocumentPayload(BaseModel):
+    company_id: str = Field(..., description="Tenant Organization ID")
+    category: Optional[str] = Field("company_policies", description="Document category")
+    file: Optional[str] = Field(None, description="Base64 encoded string, text content, or file path")
+    file_path: Optional[str] = Field(None, description="Local path to file")
+    uploadedAt: Optional[str] = Field(None, description="ISO datetime upload timestamp")
+    source_doc: Optional[str] = Field(None, description="Document filename or title")
+    document_id: Optional[str] = Field(None, description="MongoDB Document ID")
+    valid_from: Optional[str] = Field(None, description="ISO datetime effective start")
+    valid_until: Optional[str] = Field(None, description="ISO datetime effective expiry")
+
+class ExpireDocumentPayload(BaseModel):
+    company_id: str = Field(..., description="Tenant Organization ID")
+    document_id: Optional[str] = Field(None, description="MongoDB Document ID")
+    source_doc: Optional[str] = Field(None, description="Filename or title")
 
 class QueryRequest(BaseModel):
     company_id: str = Field(..., description="Tenant Organization ID")
     user_id: Optional[str] = Field(None, description="Requesting User ID")
     role: Optional[str] = Field("EMPLOYEE", description="User RBAC role")
     query: str = Field(..., description="User prompt or question")
+    category: Optional[str] = Field(None, description="Optional category filter")
     session_id: Optional[str] = Field(None, description="Conversation session ID")
     history: Optional[List[Dict[str, str]]] = Field(default=[], description="Past messages")
     employee_data: Optional[Dict[str, Any]] = Field(None, description="Live employee record from database")
@@ -74,9 +99,12 @@ async def ingest_text_endpoint(payload: IngestTextRequest):
             company_id=payload.company_id,
             text=payload.text,
             source_doc_name=payload.source_doc,
+            category=payload.category,
+            uploadedAt=payload.uploadedAt,
             valid_from=payload.valid_from,
             valid_until=payload.valid_until,
             section_name=payload.section_name,
+            document_id=payload.document_id,
         )
         return {"success": True, "data": result}
     except Exception as e:
@@ -89,13 +117,80 @@ async def ingest_file_endpoint(payload: IngestFileRequest):
             company_id=payload.company_id,
             file_path=payload.file_path,
             source_doc_name=payload.source_doc,
+            category=payload.category,
+            uploadedAt=payload.uploadedAt,
             valid_from=payload.valid_from,
             valid_until=payload.valid_until,
             section_name=payload.section_name,
+            document_id=payload.document_id,
         )
         return {"success": True, "data": result}
     except FileNotFoundError as fnf:
         raise HTTPException(status_code=404, detail=str(fnf))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/rag/ingest")
+@app.post("/ingest/document")
+async def ingest_document_unified_endpoint(payload: IngestDocumentPayload):
+    """
+    Phase 6 Requirement 2 & 3:
+    Ingestion endpoint called by background worker with { company_id, category, file, uploadedAt }.
+    """
+    try:
+        bytes_content = None
+        target_path = payload.file_path
+
+        if payload.file:
+            # Check if payload.file is base64
+            clean_str = payload.file.strip()
+            if clean_str.startswith("data:") and "," in clean_str:
+                clean_str = clean_str.split(",", 1)[1]
+            
+            try:
+                decoded = base64.b64decode(clean_str, validate=True)
+                bytes_content = decoded
+            except Exception:
+                if target_path and os.path.exists(target_path):
+                    pass
+                elif os.path.exists(clean_str):
+                    target_path = clean_str
+                else:
+                    bytes_content = clean_str.encode("utf-8")
+
+        if not target_path and bytes_content is None:
+            raise HTTPException(status_code=400, detail="Missing file content or file_path")
+
+        result = ingest_document(
+            company_id=payload.company_id,
+            file_path=target_path,
+            file_bytes=bytes_content,
+            source_doc_name=payload.source_doc,
+            category=payload.category,
+            uploadedAt=payload.uploadedAt,
+            valid_from=payload.valid_from,
+            valid_until=payload.valid_until,
+            document_id=payload.document_id,
+        )
+        return {"success": True, "data": result}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/rag/expire-document")
+async def expire_document_endpoint(payload: ExpireDocumentPayload):
+    """
+    Phase 6 Requirement 6:
+    Soft-expire chunks belonging to a deleted or replaced document.
+    """
+    try:
+        result = expire_document_chunks(
+            company_id=payload.company_id,
+            source_doc=payload.source_doc,
+            document_id=payload.document_id,
+        )
+        return {"success": True, "data": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -115,12 +210,14 @@ async def query_endpoint(payload: QueryRequest):
             "status": "GUARDRAIL_REJECTED",
         }
 
-    # 3. Tenant-Isolated Retrieval (with temporal expiry filtering)
+    # 3. Tenant-Isolated Retrieval (with optional category & temporal expiry filtering)
     chunks = retrieve_company_documents(
         company_id=payload.company_id,
         query=clean_query,
+        category=payload.category,
         top_k=4,
     )
+
 
     if not chunks:
         return {

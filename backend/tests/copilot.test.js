@@ -133,6 +133,7 @@ describe("Phase 3: HR Agent Gateway Proxy, RBAC & Multi-Tenant Verification", ()
   after(async () => {
     await new Promise((resolve) => server.close(resolve));
     await new Promise((resolve) => mockAiServer.close(resolve));
+    await mongoose.disconnect();
   });
 
   test("DoD 1: CopilotConversation model schema validation", () => {

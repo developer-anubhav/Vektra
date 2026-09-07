@@ -7,6 +7,7 @@ import {
   downloadDocument,
   deleteDocument,
 } from "../controllers/documentController.js";
+import { enqueueDocumentIngestion, softExpireDocumentChunks } from "../jobs/documentIngestionQueue.js";
 
 const router = express.Router();
 

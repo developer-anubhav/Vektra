@@ -48,7 +48,9 @@ DOMAIN_KEYWORD_MAP = {
     "policy": [
         "policy", "handbook", "guideline", "guidelines", "rules", "code of conduct",
         "dress code", "wfh", "remote work", "work from home", "office hours", "probation",
-        "termination", "resignation", "notice period", "safety", "evacuation"
+        "termination", "resignation", "notice period", "safety", "evacuation",
+        "compliance", "regulatory", "regulations", "audit", "retention", "terms",
+        "terms and conditions", "statutory", "legal", "gdpr", "iso", "contract"
     ],
     "profile": [
         "profile", "designation", "email", "phone", "contact", "date of joining", "work location",
