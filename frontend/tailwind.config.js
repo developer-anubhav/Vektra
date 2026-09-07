@@ -15,6 +15,20 @@ export default {
         'copilot-quote': ["'Source Serif 4'", "Georgia", "serif"],
       },
       colors: {
+        vektra: {
+          blue: '#3D6AB8', // Tech Sapphire Blue (Primary)
+          cyan: '#9DFFF9', // Electric Cyan Aqua (Glow Highlight)
+          emerald: '#054D19', // Deep Emerald Green (Verified RAG)
+          lavender: '#C7C1D7', // Soft Lavender (AI Response Bubble)
+          taupe: '#7A5C58', // Muted Warm Taupe (User Bubble)
+        },
+        copilot: {
+          header: '#3D6AB8',
+          sparkle: '#9DFFF9',
+          verified: '#054D19',
+          aiMsg: '#C7C1D7',
+          userMsg: '#7A5C58',
+        },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: "hsl(var(--card))",
