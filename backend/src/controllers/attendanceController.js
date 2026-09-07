@@ -2,6 +2,7 @@ import Company from "../models/Company.js";
 import User from "../models/userModel.js";
 import sendEmail from "../utils/sendEmail.js";
 import { syncAttendanceToCollection, deleteAttendanceFromCollection } from "../utils/attendanceSync.js";
+import { getAttendanceRecords } from "../utils/attendanceAdapter.js";
 
 // Mark Attendance
 export const markAttendance = async (req, res) => {
@@ -72,12 +73,14 @@ export const markAttendance = async (req, res) => {
 export const getAttendance = async (req, res) => {
   try {
     const company = await Company.findById(req.user.companyId);
+    const attendanceRecords = await getAttendanceRecords(req.user.companyId, {}, { sort: { date: -1 } });
     
     // Manually "populate" employee info since they are in the same doc
-    const enrichedRecords = company.attendance.map(att => {
-        const emp = company.employees.id(att.employeeId);
+    const enrichedRecords = attendanceRecords.map(att => {
+        const emp = company?.employees.id(att.employeeId);
+        const obj = att.toObject ? att.toObject() : att;
         return {
-            ...att.toObject(),
+            ...obj,
             employee: emp ? { _id: emp._id, name: emp.name, employeeId: emp.employeeId } : null
         };
     });

@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { connectDB } from "../config/db.js";
 import Company from "../models/Company.js";
 import Attendance from "../models/Attendance.js";
