@@ -149,9 +149,10 @@ async def enroll_face(employee_id: str, body: EnrollRequest):
             face_tensor = preprocess_face(face_tensor)
 
             # 5. FaceNet embedding
-            device = get_device()
-            embedding = model(face_tensor.unsqueeze(0).to(device))  # shape: (1, 512)
-            embedding_list = embedding.detach().cpu().numpy().flatten().tolist()
+            with torch.inference_mode():
+                device = get_device()
+                embedding = model(face_tensor.unsqueeze(0).to(device))  # shape: (1, 512)
+                embedding_list = embedding.detach().cpu().numpy().flatten().tolist()
             embeddings.append(embedding_list)
 
             logger.info(f"[{employee_id}] {image_label} — embedding generated (dim={len(embedding_list)})")

@@ -14,12 +14,13 @@ import numpy as np
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 
-from core.detection import detect_and_align
+from core.detection import detect_and_align, detect_landmarks_only
 from core.preprocessing import preprocess_face
 from core.facenet_model import get_model, get_device
 from core.quality import check_image_quality
 from core.liveness import check_liveness, check_eye_blink_liveness
 from core.recognition import identify_face_1toN, verify_face_1to1, get_match_threshold, set_match_threshold
+import torch
 
 logger = logging.getLogger("face-service.verify")
 
@@ -108,12 +109,7 @@ async def verify_face_1toN_endpoint(body: VerifyRequest):
 
     try:
         prev_img = _decode_base64(body.prev_image)
-        _, prev_landmarks = detect_and_align(prev_img)
-    except ValueError as ve:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Anti-spoofing check failed on frame 1: {str(ve)}",
-        )
+        prev_landmarks, _ = detect_landmarks_only(prev_img)
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -130,11 +126,12 @@ async def verify_face_1toN_endpoint(body: VerifyRequest):
         )
 
     # 5. Preprocess & embed
-    model = get_model()
-    device = get_device()
-    face_tensor = preprocess_face(face_tensor)
-    embedding = model(face_tensor.unsqueeze(0).to(device))
-    query_emb = embedding.detach().cpu().numpy().flatten().tolist()
+    with torch.inference_mode():
+        model = get_model()
+        device = get_device()
+        face_tensor = preprocess_face(face_tensor)
+        embedding = model(face_tensor.unsqueeze(0).to(device))
+        query_emb = embedding.detach().cpu().numpy().flatten().tolist()
 
     # 5. Perform 1:1 or 1:N matching
     if body.employee_id:
