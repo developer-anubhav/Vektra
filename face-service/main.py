@@ -25,14 +25,13 @@ logger = logging.getLogger("face-service")
 
 
 # ---------------------------------------------------------------------------
-# Lifespan: warm up FaceNet model and MTCNN on startup
+# Lifespan: warm up FaceNet model on startup (MTCNN lazy-loads on first request)
 # ---------------------------------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("🔄 Loading FaceNet & MTCNN models…")
-    warmup_detection()
+    logger.info("🔄 Loading FaceNet model (quantized)…")
     warmup_models()
-    logger.info("✅ Face service models warmed up and ready")
+    logger.info("✅ Face service ready")
     yield
     logger.info("👋 Face service shutting down")
 
