@@ -11,6 +11,7 @@ import base64
 import logging
 from typing import List
 
+import torch
 import numpy as np
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
