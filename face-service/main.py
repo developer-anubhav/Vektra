@@ -11,7 +11,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routers import enroll
-from core.facenet_model import get_model
+from core.facenet_model import get_model, warmup_models
+from core.detection import warmup_detection
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -29,7 +30,7 @@ logger = logging.getLogger("face-service")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("🔄 Loading FaceNet & MTCNN models…")
-    _get_mtcnn()
+    warmup_detection()
     warmup_models()
     logger.info("✅ Face service models warmed up and ready")
     yield

@@ -56,6 +56,11 @@ def _get_mtcnn() -> MTCNN:
     return _mtcnn
 
 
+def warmup_detection() -> None:
+    """Pre-initialize MTCNN singleton on application startup."""
+    _get_mtcnn()
+
+
 def _downscale_if_large(img_bgr: np.ndarray, max_width: int = MAX_DETECTION_WIDTH) -> Tuple[np.ndarray, float]:
     """Downscale large input image to speed up MTCNN multi-scale pyramid sweeps."""
     h, w = img_bgr.shape[:2]
