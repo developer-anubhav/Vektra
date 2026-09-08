@@ -11,6 +11,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxrender-dev \
     && rm -rf /var/lib/apt-get/lists/*
 
+# Optimize C++ and PyTorch CPU thread pools for restricted Render CPU instances
+ENV PYTHONUNBUFFERED=1 \
+    OMP_NUM_THREADS=2 \
+    MKL_NUM_THREADS=2 \
+    OPENBLAS_NUM_THREADS=2 \
+    VECLIB_MAXIMUM_THREADS=2 \
+    NUMEXPR_NUM_THREADS=2
+
 COPY requirements.txt .
 
 # Upgrade pip and install CPU-only PyTorch to reduce build size and RAM usage on Render

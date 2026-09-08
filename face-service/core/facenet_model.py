@@ -7,7 +7,7 @@ Model: InceptionResnetV1 pretrained on VGGFace2
 Output: 512-dimensional L2-normalized face embedding vector
 
 The model is loaded once at startup and reused for all requests.
-GPU is used if available, otherwise CPU.
+GPU is used if available, otherwise CPU with optimized thread count.
 """
 
 import logging
@@ -34,6 +34,15 @@ def get_model() -> InceptionResnetV1:
 
     if _model is None:
         _device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if _device.type == "cpu":
+            # Avoid CPU thread thrashing on limited Render CPU cores
+            torch.set_num_threads(2)
+            try:
+                torch.set_num_interop_threads(1)
+            except RuntimeError:
+                pass  # May fail if already set in runtime
+            logger.info("Configured PyTorch CPU threads (num_threads=2, num_interop_threads=1)")
+
         logger.info(f"Loading InceptionResnetV1 (pretrained={MODEL_VERSION}) on {_device}…")
 
         _model = InceptionResnetV1(pretrained=MODEL_VERSION).eval().to(_device)
@@ -50,3 +59,14 @@ def get_device() -> torch.device:
     if _device is None:
         get_model()
     return _device
+
+
+def warmup_models() -> None:
+    """Pre-warm FaceNet and MTCNN with a dummy tensor to avoid first-request latency."""
+    model = get_model()
+    device = get_device()
+    with torch.inference_mode():
+        dummy_input = torch.zeros(1, 3, 160, 160, device=device)
+        _ = model(dummy_input)
+    logger.info("⚡ FaceNet model warm-up complete")
+
