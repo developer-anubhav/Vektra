@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.vektra.presentation.auth.LoginViewModelTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-09-08T16:43:58.689Z" hostname="ANUBHAV" time="0.445">
+  <properties/>
+  <testcase name="login with empty fields sets validation errors" classname="com.vektra.presentation.auth.LoginViewModelTest" time="0.393"/>
+  <testcase name="login with valid credentials invokes usecase successfully" classname="com.vektra.presentation.auth.LoginViewModelTest" time="0.038"/>
+  <testcase name="login with network connection error maps to user friendly message" classname="com.vektra.presentation.auth.LoginViewModelTest" time="0.013"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

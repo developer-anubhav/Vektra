@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="vektra_bg">#F8FAFC</color>
+    <color name="vektra_dark_navy">#0F172A</color>
+    <color name="vektra_primary">#2563EB</color>
+    <color name="white">#FFFFFFFF</color>
+    <string name="app_name">Vektra</string>
+    <string name="app_subtagline">Human Resource Management Platform</string>
+    <string name="app_tagline">Enterprise Management System</string>
+    <string name="foundation_status">Android Foundation Phase 1 Ready</string>
+    <style name="Theme.Vektra" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/vektra_primary</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

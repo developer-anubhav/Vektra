@@ -1,21 +1,19 @@
 {
-  "name": "vektra-monorepo",
+  "name": "vektra-platform",
   "version": "1.0.0",
-  "description": "Vektra Enterprise HRMS Monorepo",
   "private": true,
+  "packageManager": "npm@11.6.1",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "npm --prefix frontend run dev",
-    "dev:frontend": "npm --prefix frontend run dev",
-    "dev:backend": "npm --prefix backend run dev",
-    "backend": "npm --prefix backend run dev",
-    "frontend": "npm --prefix frontend run dev",
-    "copilot": "cd copilot-service && .venv\\Scripts\\uvicorn main:app --host 127.0.0.1 --port 8001 --reload",
-    "dev:copilot": "cd copilot-service && .venv\\Scripts\\uvicorn main:app --host 127.0.0.1 --port 8001 --reload",
-    "start": "npm --prefix backend start",
-    "start:backend": "npm --prefix backend start",
-    "build": "npm --prefix frontend run build",
-    "test": "npm --prefix backend test",
-    "test:backend": "npm --prefix backend test",
-    "test:copilot": "cd copilot-service && .venv\\Scripts\\pytest tests/ -v"
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test"
+  },
+  "devDependencies": {
+    "turbo": "^2.1.0"
   }
 }
