@@ -1,0 +1,282 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,600&display=swap');
+
+/* Zoho Puvi Official Font Definitions */
+@font-face {
+  font-family: 'Zoho Puvi';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('https://static.zohocdn.com/zohofonts/zohopuvi/v1.0/Zoho_Puvi_Light.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Zoho Puvi';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://static.zohocdn.com/zohofonts/zohopuvi/v1.0/Zoho_Puvi_Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Zoho Puvi';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('https://static.zohocdn.com/zohofonts/zohopuvi/v1.0/Zoho_Puvi_Medium.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Zoho Puvi';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('https://static.zohocdn.com/zohofonts/zohopuvi/v1.0/Zoho_Puvi_SemiBold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Zoho Puvi';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('https://static.zohocdn.com/zohofonts/zohopuvi/v1.0/Zoho_Puvi_Bold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Zoho Puvi';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('https://static.zohocdn.com/zohofonts/zohopuvi/v1.0/Zoho_Puvi_ExtraBold.woff2') format('woff2');
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --vektra-blue: #3D6AB8;
+    --vektra-cyan: #9DFFF9;
+    --vektra-emerald: #054D19;
+    --vektra-lavender: #C7C1D7;
+    --vektra-taupe: #7A5C58;
+
+    --background: 210 20% 98%;
+    --foreground: 220 20% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 12%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 20% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 20% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 20% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 32% 91%;
+    --input: 214.3 32% 91%;
+    --ring: 221.2 83.2% 53.3%;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+  }
+
+  html, body {
+    font-family: 'Zoho Puvi', 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  input, button, select, textarea {
+    font-family: inherit;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: 'Zoho Puvi', 'Plus Jakarta Sans', 'Outfit', sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  /* Responsive dark mode form element styling */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+    }
+    input, select, textarea {
+      background-color: #1e293b;
+      color: #f8fafc;
+      border-color: #334155;
+    }
+    select option {
+      background-color: #1e293b;
+      color: #f8fafc;
+    }
+    ::placeholder {
+      color: #94a3b8;
+    }
+  }
+
+  .dark, html.dark {
+    color-scheme: dark;
+  }
+  .dark input, .dark select, .dark textarea,
+  html.dark input, html.dark select, html.dark textarea {
+    background-color: #1e293b;
+    color: #f8fafc;
+    border-color: #334155;
+  }
+  .dark select option, html.dark select option {
+    background-color: #1e293b;
+    color: #f8fafc;
+  }
+  .dark ::placeholder, html.dark ::placeholder {
+    color: #94a3b8;
+  }
+}
+
+@layer components {
+  /* Premium Glassmorphism */
+  .glass {
+    background-color: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .glass-morphism {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+  }
+}
+
+@layer utilities {
+  /* Ambient Glows */
+  .ambient-glow {
+    position: absolute;
+    filter: blur(120px);
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.1;
+  }
+
+  .bg-dot-pattern {
+    background-image: radial-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+
+  /* Transitions */
+  .page-transition-enter {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  .page-transition-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 300ms, transform 300ms;
+  }
+}
+
+/* Global Scrollbar Overrides (outside layers for maximum compatibility) */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+@layer utilities {
+  .font-copilot-body {
+    font-family: 'Public Sans', system-ui, -apple-system, sans-serif !important;
+  }
+  .font-copilot-data {
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace !important;
+  }
+  .font-copilot-quote {
+    font-family: 'Source Serif 4', Georgia, Cambria, serif !important;
+  }
+}
+
+/* ==========================================================================
+   Vektra AI Co-Pilot Specific Typography (Sans-Serif Only)
+   Strictly scoped to the Co-Pilot drawer interface
+   ========================================================================== */
+.copilot-drawer-root,
+.copilot-drawer-root *,
+.copilot-drawer-root h1,
+.copilot-drawer-root h2,
+.copilot-drawer-root h3,
+.copilot-drawer-root h4,
+.copilot-drawer-root p,
+.copilot-drawer-root div,
+.copilot-drawer-root span,
+.copilot-drawer-root button,
+.copilot-drawer-root input,
+.copilot-drawer-root textarea,
+.copilot-drawer-root label,
+.copilot-drawer-root code,
+.copilot-drawer-root blockquote,
+.copilot-drawer-root strong,
+.copilot-drawer-root em {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+  letter-spacing: normal !important;
+}
+
+/* AI Assistant Chat Messages - Bolder, crisper readability */
+.copilot-assistant-text,
+.copilot-assistant-text p,
+.copilot-assistant-text span,
+.copilot-assistant-text li {
+  font-weight: 500 !important;
+  color: #1A2530 !important;
+}
+
+.copilot-assistant-text strong {
+  font-weight: 700 !important;
+  color: #0F172A !important;
+}
+
+/* Quick Suggestion Chips and Options - Bolder typography */
+.copilot-suggestion-chip,
+.copilot-suggestion-chip span,
+.copilot-drawer-root .copilot-suggestion-chip {
+  font-weight: 600 !important;
+  color: #1A2530 !important;
+}
+
+.copilot-suggestion-label {
+  font-weight: 700 !important;
+  color: #475569 !important;
+}
+
+/* Custom AI Cyan Glow Utilities */
+.ai-glow-cyan {
+  box-shadow: 0 0 15px rgba(157, 255, 249, 0.4);
+  border: 1px solid #9DFFF9;
+}
+
+.ai-rag-badge {
+  background-color: #054D19;
+  color: #9DFFF9;
+  border: 1px solid rgba(157, 255, 249, 0.3);
+}
+
+

@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://e-hrms-zl54.onrender.com/api/:path*"
+    },
+    {
+      "source": "/documents/:path*",
+      "destination": "https://e-hrms-zl54.onrender.com/api/documents/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="128dp"
+    android:height="128dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <!-- Outer Shield / Container -->
+    <path
+        android:fillColor="#2563EB"
+        android:pathData="M50,4 C72,4 90,20 90,44 C90,70 68,90 50,96 C32,90 10,70 10,44 C10,20 28,4 50,4 Z" />
+    <!-- V Emblem -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,30 L42,30 L50,56 L58,30 L70,30 L57,68 L43,68 Z" />
+</vector>

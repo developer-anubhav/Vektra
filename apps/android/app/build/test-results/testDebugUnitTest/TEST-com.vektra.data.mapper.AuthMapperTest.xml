@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.vektra.data.mapper.AuthMapperTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-09-08T16:43:58.641Z" hostname="ANUBHAV" time="0.029">
+  <properties/>
+  <testcase name="mapToDomainSession maps DTO to Domain AuthSession correctly" classname="com.vektra.data.mapper.AuthMapperTest" time="0.008"/>
+  <testcase name="mapToDomainSession returns null when token is missing" classname="com.vektra.data.mapper.AuthMapperTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
