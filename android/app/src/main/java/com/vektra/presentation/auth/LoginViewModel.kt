@@ -1,9 +1,9 @@
 package com.vektra.presentation.auth
 
-import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vektra.core.common.Result
+import com.vektra.core.network.NetworkError
 import com.vektra.domain.usecase.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+private val EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$".toRegex()
 
 /**
  * ViewModel for LoginScreen handling input validation and login execution.
@@ -49,11 +51,9 @@ class LoginViewModel @Inject constructor(
         val email = currentState.email.trim()
         val password = currentState.password
 
-        var hasValidationError = false
-
         val emailError = when {
             email.isEmpty() -> "Email address is required"
-            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Invalid email address format"
+            !isValidEmail(email) -> "Invalid email address format"
             else -> null
         }
 
@@ -87,12 +87,12 @@ class LoginViewModel @Inject constructor(
                     }
                 }
                 is Result.Error -> {
-                    val message = result.exception?.message ?: "Login failed. Please try again."
+                    val userFriendlyMessage = mapErrorToUserFriendlyMessage(result.error, result.exception)
                     _uiState.update {
                         it.copy(
                             isLoading = false,
                             isSuccess = false,
-                            errorMessage = message,
+                            errorMessage = userFriendlyMessage,
                             password = "" // Immediately clear password on error
                         )
                     }
@@ -106,5 +106,27 @@ class LoginViewModel @Inject constructor(
 
     fun resetSuccessState() {
         _uiState.update { it.copy(isSuccess = false) }
+    }
+
+    private fun isValidEmail(email: String): Boolean {
+        return EMAIL_REGEX.matches(email)
+    }
+
+    private fun mapErrorToUserFriendlyMessage(error: NetworkError, exception: Throwable?): String {
+        return when (error) {
+            is NetworkError.NoInternet -> "Unable to connect to the server. Please try again later."
+            is NetworkError.Timeout -> "Connection timed out. Please check your network and try again."
+            is NetworkError.Unauthorized -> "Invalid email or password."
+            is NetworkError.BadRequest -> exception?.message ?: "Invalid email or password."
+            is NetworkError.ServerError -> "Server is currently unavailable. Please try again later."
+            is NetworkError.Unknown -> {
+                val rawMsg = exception?.message
+                if (rawMsg != null && (rawMsg.contains("failed to connect", ignoreCase = true) || rawMsg.contains("Connection refused", ignoreCase = true))) {
+                    "Unable to connect to the server. Please try again later."
+                } else {
+                    rawMsg ?: "Something went wrong. Please try again."
+                }
+            }
+        }
     }
 }

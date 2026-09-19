@@ -59,8 +59,8 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // Health check endpoints for Render / AWS / Railway probes
-app.get("/health", (req, res) => res.json({ status: "ok", timestamp: new Date().toISOString() }));
-app.get("/api/health", (req, res) => res.json({ status: "ok", timestamp: new Date().toISOString() }));
+app.get("/health", (req, res) => res.json({ success: true, status: "ok", message: "Vektra API is running", timestamp: new Date().toISOString() }));
+app.get("/api/health", (req, res) => res.json({ success: true, status: "ok", message: "Vektra API is running", timestamp: new Date().toISOString() }));
 
 // Register REST API Routers
 app.use("/api/auth", authRoutes);
