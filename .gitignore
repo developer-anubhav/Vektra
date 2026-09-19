@@ -13,3 +13,22 @@ face-service/__pycache__/
 face-service/**/__pycache__/
 face-service/**/*.pyc
 face-service/.facenet/
+
+# Copilot service
+copilot-service/.venv/
+copilot-service/venv/
+copilot-service/data/
+copilot-service/__pycache__/
+copilot-service/**/__pycache__/
+copilot-service/**/*.pyc
+.pytest_cache/
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+android/*.iml
+android/.externalNativeBuild/
+android/.cxx/
