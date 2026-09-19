@@ -2,6 +2,7 @@
   "name": "vektra-platform",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "npm@11.6.1",
   "workspaces": [
     "apps/*",
     "packages/*"
